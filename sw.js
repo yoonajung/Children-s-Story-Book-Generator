@@ -1,6 +1,6 @@
 // A service worker with a network-first caching strategy for updates.
 
-const CACHE_NAME = 'storybook-generator-v3'; // Bumped version to invalidate old caches
+const CACHE_NAME = 'storybook-generator-v4'; // Bumped version to invalidate old caches
 const STATIC_ASSETS = [
   './',
   'index.html',

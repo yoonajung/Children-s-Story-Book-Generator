@@ -6,9 +6,8 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { useState, useCallback, useRef, Fragment, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
-// Safely get the API key in a way that doesn't crash the browser.
-// The `process` object does not exist in browser environments like GitHub Pages.
-const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : undefined;
+// The execution environment will replace this with the actual API key.
+const apiKey = process.env.API_KEY;
 
 // Replaced MagicWandIcon with PencilIcon for a clearer, cuter look.
 const PencilIcon = () => (
@@ -52,6 +51,10 @@ const translations = {
     childAgeDefault: "5",
     favoriteThingsLabel: "가장 좋아하는 것은 무엇인가요?",
     favoriteThingsDefault: "공룡과 우주 로켓",
+    artStyleLabel: "그림 스타일",
+    artStyleCartoon: "기운찬 카툰",
+    artStyleWatercolor: "꿈같은 수채화",
+    artStyleClaymation: "아늑한 클레이메이션",
     submitButton: "나만의 멋진 동화 만들기!",
     submitButtonLoading: "만드는 중...",
     storyPlaceholder: "마법 같은 이야기와 멋진 그림이 여기에 나타날 거예요!",
@@ -75,6 +78,10 @@ const translations = {
     childAgeDefault: "5",
     favoriteThingsLabel: "What are their favorite things?",
     favoriteThingsDefault: "dinosaurs and space rockets",
+    artStyleLabel: "Art Style",
+    artStyleCartoon: "Cute Cartoon",
+    artStyleWatercolor: "Dreamy Watercolor",
+    artStyleClaymation: "Cozy Claymation",
     submitButton: "Write my Story!",
     submitButtonLoading: "Creating...",
     storyPlaceholder: "Your magical story and a beautiful illustration will appear here!",
@@ -125,11 +132,11 @@ const translationSchema = {
     }
 };
 
-const getPrompt = (language: 'ko' | 'en', childAge: string, childName: string, favoriteThings: string) => {
+const getPrompt = (language: 'ko' | 'en', childAge: string, childName: string, favoriteThings: string, artStyle: string) => {
     if (language === 'ko') {
-        return `${childAge}살 **${childName}** 어린이를 위한, 세 부분(시작, 중간, 끝)으로 구성된 짧고 마법 같은 동화책을 만들어주세요. 아이가 가장 좋아하는 것들인 **${favoriteThings}**에 대한 이야기여야 합니다. 흥미진진하고, 나이에 맞는 쉬운 단어를 사용하고, **${childName}** 어린이가 영웅이 되는 행복한 결말로 만들어주세요. **이야기는 반드시 한국어로 작성해야 합니다.** 각 이야기 부분에 대해, 그 내용과 어울리는 어린이 동화책 스타일의 기발하고 생생하며 귀여운 삽화를 생성할 수 있는 이미지 프롬프트도 함께 제공해주세요. 아이의 이름이 나올 때마다 마크다운 굵은 글씨로 강조해주세요.`;
+        return `${childAge}살 **${childName}** 어린이를 위한, 세 부분(시작, 중간, 끝)으로 구성된 짧고 마법 같은 동화책을 만들어주세요. 아이가 가장 좋아하는 것들인 **${favoriteThings}**에 대한 이야기여야 합니다. 흥미진진하고, 나이에 맞는 쉬운 단어를 사용하고, **${childName}** 어린이가 영웅이 되는 행복한 결말로 만들어주세요. **이야기는 반드시 한국어로 작성해야 합니다.** 각 이야기 부분에 대해, 그 내용과 어울리는 어린이 동화책 스타일의 기발하고 생생하며 귀여운 삽화를 생성할 수 있는 이미지 프롬프트도 함께 제공해주세요. **삽화 스타일은 반드시 '${artStyle}' 이어야 합니다.** 아이의 이름이 나올 때마다 마크다운 굵은 글씨로 강조해주세요.`;
     }
-    return `Create a short, magical children's storybook in three parts (beginning, middle, end) for a ${childAge}-year-old child named **${childName}**. The story should be about their favorite things: **${favoriteThings}**. Make the story exciting, use simple words, and have a happy ending where **${childName}** is the hero. For each part, also provide a descriptive prompt to generate a whimsical, vibrant, and cute illustration for a children's storybook that matches the story part. Make sure to highlight the child's name in markdown bold every time it appears.`;
+    return `Create a short, magical children's storybook in three parts (beginning, middle, end) for a ${childAge}-year-old child named **${childName}**. The story should be about their favorite things: **${favoriteThings}**. Make the story exciting, use simple words, and have a happy ending where **${childName}** is the hero. For each part, also provide a descriptive prompt to generate a whimsical, vibrant, and cute illustration for a children's storybook that matches the story part. **The illustration style must be '${artStyle}'.** Make sure to highlight the child's name in markdown bold every time it appears.`;
 }
 
 // --- Sound Effects Engine ---
@@ -207,27 +214,16 @@ const App = () => {
 
   const t = translations[language];
 
-  // This check prevents the app from crashing with a blank screen on environments
-  // like GitHub Pages where the API_KEY is not available.
+  // If the API key is not available, the app will not function.
+  // This check is primarily for developer awareness. The execution
+  // environment is expected to provide the key.
   if (!apiKey) {
+    // This simple error is better than a blank screen and helps diagnose issues.
     return (
-      <div className="container">
-        <header className="header">
-          <h1 className="title">{t.title}</h1>
-        </header>
-        <main className="content-wrapper">
-          <div className="config-error-container">
-            <div className="config-error-message">
-              <h2>{language === 'ko' ? '설정 오류' : 'Configuration Error'}</h2>
-              <p>
-                {language === 'ko' 
-                  ? 'API 키가 설정되지 않아 앱을 실행할 수 없습니다. 배포 환경에 API_KEY가 올바르게 설정되었는지 확인해주세요.' 
-                  : 'The application cannot run because the API Key is not set. Please ensure the API_KEY is configured correctly in the deployment environment.'}
-              </p>
-            </div>
-          </div>
-        </main>
-      </div>
+        <div style={{ padding: '20px', fontFamily: 'sans-serif', color: '#c00' }}>
+            <h1>Configuration Error</h1>
+            <p>API_KEY is not configured. Please ensure it is set in the environment.</p>
+        </div>
     );
   }
 
@@ -257,8 +253,9 @@ const App = () => {
     const childName = formData.get('childName') as string;
     const childAge = formData.get('childAge') as string;
     const favoriteThings = formData.get('favoriteThings') as string;
+    const artStyle = formData.get('artStyle') as string;
 
-    const prompt = getPrompt(language, childAge, childName, favoriteThings);
+    const prompt = getPrompt(language, childAge, childName, favoriteThings, artStyle);
     
     try {
       const ai = new GoogleGenAI({ apiKey: apiKey as string });
@@ -429,6 +426,21 @@ const App = () => {
             <div className="form-group">
               <label htmlFor="favoriteThings">{t.favoriteThingsLabel}</label>
               <input type="text" id="favoriteThings" name="favoriteThings" defaultValue={t.favoriteThingsDefault} required />
+            </div>
+            <div className="form-group">
+              <fieldset className="art-style-group">
+                <legend>{t.artStyleLabel}</legend>
+                <div className="art-style-options">
+                    <input type="radio" id="style-cartoon" name="artStyle" value="Cute Cartoon" defaultChecked />
+                    <label htmlFor="style-cartoon">{t.artStyleCartoon}</label>
+                    
+                    <input type="radio" id="style-watercolor" name="artStyle" value="Dreamy Watercolor" />
+                    <label htmlFor="style-watercolor">{t.artStyleWatercolor}</label>
+                    
+                    <input type="radio" id="style-claymation" name="artStyle" value="Cozy Claymation" />
+                    <label htmlFor="style-claymation">{t.artStyleClaymation}</label>
+                </div>
+              </fieldset>
             </div>
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? (

@@ -2,12 +2,41 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
-import { GoogleGenAI, Type } from '@google/genai';
 import { useState, useCallback, useRef, Fragment, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
+import './index.css';
 
-// The execution environment will replace this with the actual API key.
-const apiKey = process.env.API_KEY;
+// 데모용 더미 데이터
+const dummyStories = {
+  ko: [
+    {
+      text: "옛날 옛적에 **알렉스**라는 용감한 어린이가 살고 있었어요. 알렉스는 공룡과 우주 로켓을 무척 좋아했답니다. 어느 날, 알렉스는 뒷마당에서 반짝이는 이상한 돌을 발견했어요.",
+      image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzg3Q0VFQiIvPjx0ZXh0IHg9IjIwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7sl4Drpr3snpAg7J2065OcIOuPhOyEgO2VnOyXrCDqt7jrpqzsnYQg67O064KZIPC+mpo8L3RleHQ+PC9zdmc+"
+    },
+    {
+      text: "그 돌을 만지는 순간, **알렉스**는 마법의 공룡 친구 렉시와 함께 우주로 날아갔어요! 우주에서 알렉스와 렉시는 외계인 친구들을 만나고, 함께 우주 모험을 떠났답니다.",
+      image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzJDMjc0QyIvPjx0ZXh0IHg9IjIwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7sl4DrprTsoIDqsIDqsJjqs4Qg7Jqw7KO8IOuqqOusueydhCDqt7jrpqzsnYQgOzop8J+agDwvdGV4dD48L3N2Zz4="
+    },
+    {
+      text: "마침내 **알렉스**는 우주 공룡들과 함께 지구를 구하는 영웅이 되었어요! 집으로 돌아온 알렉스는 이제 언제든지 마법의 돌로 새로운 모험을 떠날 수 있다는 것을 알게 되었답니다. 끝!",
+      image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI0ZGRDcwMCIvPjx0ZXh0IHg9IjIwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9ImJsYWNrIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7sl4Drpr3snYAg7KeA6rWs66W8IOq1rO2VnOyYgeyZhSEg8J+OieKcqO+4jzwvdGV4dD48L3N2Zz4="
+    }
+  ],
+  en: [
+    {
+      text: "Once upon a time, there lived a brave child named **Alex**. Alex loved dinosaurs and space rockets very much. One day, Alex found a sparkling strange stone in the backyard.",
+      image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzg3Q0VFQiIvPjx0ZXh0IHg9IjIwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BbGV4IGZpbmRzIGEgbWFnaWNhbCBzdG9uZSEg8J+MnDwvdGV4dD48L3N2Zz4="
+    },
+    {
+      text: "The moment **Alex** touched the stone, Alex flew to space with a magical dinosaur friend named Lexi! In space, Alex and Lexi met alien friends and went on a space adventure together.",
+      image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzJDMjc0QyIvPjx0ZXh0IHg9IjIwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TcGFjZSBhZHZlbnR1cmUgYmVnaW5zISAg8J+agDwvdGV4dD48L3N2Zz4="
+    },
+    {
+      text: "Finally, **Alex** became a hero who saved Earth with space dinosaurs! Back home, Alex learned that new adventures could begin anytime with the magical stone. The End!",
+      image: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iI0ZGRDcwMCIvPjx0ZXh0IHg9IjIwMCIgeT0iMTAwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9ImJsYWNrIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5BbGV4IHNhdmVzIHRoZSBFYXJ0aCEg8J+OieKcqO+4jzwvdGV4dD48L3N2Zz4="
+    }
+  ]
+};
 
 // Replaced MagicWandIcon with PencilIcon for a clearer, cuter look.
 const PencilIcon = () => (
@@ -40,10 +69,9 @@ const ArrowRightIcon = () => (
   </svg>
 );
 
-
 const translations = {
   ko: {
-    title: "나만의 그림동화책 생성기",
+    title: "나만의 그림동화책 생성기 (데모)",
     languageLabel: "언어",
     childNameLabel: "아이의 이름은 무엇인가요?",
     childNameDefault: "알렉스",
@@ -55,7 +83,7 @@ const translations = {
     artStyleCartoon: "기운찬 카툰",
     artStyleWatercolor: "꿈같은 수채화",
     artStyleClaymation: "아늑한 클레이메이션",
-    submitButton: "나만의 멋진 동화 만들기!",
+    submitButton: "나만의 멋진 동화 만들기! (데모)",
     submitButtonLoading: "만드는 중...",
     storyPlaceholder: "마법 같은 이야기와 멋진 그림이 여기에 나타날 거예요!",
     readAloudButton: "소리 내어 읽기",
@@ -68,9 +96,10 @@ const translations = {
     translateToEnglish: "영어로 번역",
     translateToKorean: "한국어로 번역",
     translatingButton: "번역 중...",
+    demoNotice: "🚧 이것은 데모 버전입니다. 실제 AI 생성을 위해서는 Google AI API 키가 필요합니다.",
   },
   en: {
-    title: "Children's Story Generator",
+    title: "Children's Story Generator (Demo)",
     languageLabel: "Language",
     childNameLabel: "What is your child's name?",
     childNameDefault: "Alex",
@@ -82,7 +111,7 @@ const translations = {
     artStyleCartoon: "Cute Cartoon",
     artStyleWatercolor: "Dreamy Watercolor",
     artStyleClaymation: "Cozy Claymation",
-    submitButton: "Write my Story!",
+    submitButton: "Write my Story! (Demo)",
     submitButtonLoading: "Creating...",
     storyPlaceholder: "Your magical story and a beautiful illustration will appear here!",
     readAloudButton: "Read Aloud",
@@ -95,49 +124,9 @@ const translations = {
     translateToEnglish: "Translate to English",
     translateToKorean: "Translate to Korean",
     translatingButton: "Translating...",
+    demoNotice: "🚧 This is a demo version. Google AI API key is required for actual AI generation.",
   },
 };
-
-const storySchema = {
-  type: Type.OBJECT,
-  properties: {
-    pages: {
-      type: Type.ARRAY,
-      description: "An array of 3 storybook pages.",
-      items: {
-        type: Type.OBJECT,
-        properties: {
-          story_part: {
-            type: Type.STRING,
-            description: "One part of the story (beginning, middle, or end). Should be about 60-70 words. The hero's name must be in markdown bold.",
-          },
-          image_prompt: {
-            type: Type.STRING,
-            description: "A whimsical, vibrant, and cute illustration prompt for a children's storybook, based on the story part.",
-          },
-        },
-        required: ["story_part", "image_prompt"],
-      },
-    },
-  },
-  required: ["pages"],
-};
-
-const translationSchema = {
-    type: Type.ARRAY,
-    description: "An array of translated story parts, corresponding to the input array.",
-    items: {
-        type: Type.STRING,
-        description: "A single translated story part."
-    }
-};
-
-const getPrompt = (language: 'ko' | 'en', childAge: string, childName: string, favoriteThings: string, artStyle: string) => {
-    if (language === 'ko') {
-        return `${childAge}살 **${childName}** 어린이를 위한, 세 부분(시작, 중간, 끝)으로 구성된 짧고 마법 같은 동화책을 만들어주세요. 아이가 가장 좋아하는 것들인 **${favoriteThings}**에 대한 이야기여야 합니다. 흥미진진하고, 나이에 맞는 쉬운 단어를 사용하고, **${childName}** 어린이가 영웅이 되는 행복한 결말로 만들어주세요. **이야기는 반드시 한국어로 작성해야 합니다.** 각 이야기 부분에 대해, 그 내용과 어울리는 어린이 동화책 스타일의 기발하고 생생하며 귀여운 삽화를 생성할 수 있는 이미지 프롬프트도 함께 제공해주세요. **삽화 스타일은 반드시 '${artStyle}' 이어야 합니다.** 아이의 이름이 나올 때마다 마크다운 굵은 글씨로 강조해주세요.`;
-    }
-    return `Create a short, magical children's storybook in three parts (beginning, middle, end) for a ${childAge}-year-old child named **${childName}**. The story should be about their favorite things: **${favoriteThings}**. Make the story exciting, use simple words, and have a happy ending where **${childName}** is the hero. For each part, also provide a descriptive prompt to generate a whimsical, vibrant, and cute illustration for a children's storybook that matches the story part. **The illustration style must be '${artStyle}'.** Make sure to highlight the child's name in markdown bold every time it appears.`;
-}
 
 // --- Sound Effects Engine ---
 const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -214,19 +203,6 @@ const App = () => {
 
   const t = translations[language];
 
-  // If the API key is not available, the app will not function.
-  // This check is primarily for developer awareness. The execution
-  // environment is expected to provide the key.
-  if (!apiKey) {
-    // This simple error is better than a blank screen and helps diagnose issues.
-    return (
-        <div style={{ padding: '20px', fontFamily: 'sans-serif', color: '#c00' }}>
-            <h1>Configuration Error</h1>
-            <p>API_KEY is not configured. Please ensure it is set in the environment.</p>
-        </div>
-    );
-  }
-
   const handleLanguageChange = (newLang: 'ko' | 'en') => {
     if (language === newLang) return;
     setLanguage(newLang);
@@ -251,72 +227,25 @@ const App = () => {
 
     const formData = new FormData(event.currentTarget);
     const childName = formData.get('childName') as string;
-    const childAge = formData.get('childAge') as string;
-    const favoriteThings = formData.get('favoriteThings') as string;
-    const artStyle = formData.get('artStyle') as string;
 
-    const prompt = getPrompt(language, childAge, childName, favoriteThings, artStyle);
-    
-    try {
-      const ai = new GoogleGenAI({ apiKey: apiKey as string });
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: storySchema,
-        }
-      });
-      
-      const storyData = JSON.parse(response.text);
-      if (!storyData.pages || storyData.pages.length === 0) {
-        throw new Error("Received an invalid story structure from the API.");
-      }
-
-      const pages = storyData.pages.map((page: any) => ({
-          text: page.story_part,
-          image: null, // Image will be loaded progressively
+    // 2초 후에 더미 스토리를 보여줌 (실제 API 호출처럼 보이게 하기 위해)
+    setTimeout(() => {
+      // 입력한 이름으로 스토리를 커스터마이징
+      const customizedStory = dummyStories[language].map(page => ({
+        text: page.text.replace(/\*\*알렉스\*\*/g, `**${childName}**`).replace(/\*\*Alex\*\*/g, `**${childName}**`),
+        image: page.image
       }));
-      setStoryPages(pages);
+
+      setStoryPages(customizedStory);
       setStoryLanguage(language);
       playSuccessSound();
-
-      // Progressively generate and add images
-      storyData.pages.forEach(async (pageData: any, index: number) => {
-          try {
-              const imageResponse = await ai.models.generateImages({
-                  model: 'imagen-4.0-generate-001',
-                  prompt: pageData.image_prompt,
-                  config: {
-                      numberOfImages: 1,
-                      outputMimeType: 'image/jpeg',
-                      aspectRatio: '16:9',
-                  },
-              });
-              const base64ImageBytes = imageResponse.generatedImages[0].image.imageBytes;
-              const imageUrl = `data:image/jpeg;base64,${base64ImageBytes}`;
-              
-              setStoryPages(currentPages => {
-                  const newPages = [...currentPages];
-                  if (newPages[index]) {
-                      newPages[index].image = imageUrl;
-                  }
-                  return newPages;
-              });
-          } catch (imgErr: any) {
-              console.error(`Image generation failed for page ${index + 1}:`, imgErr);
-              // Do not set a user-facing error, the text is still available.
-          }
-      });
-    } catch (err: any) {
-      setError(`${t.errorMessage} ${err.message}`);
-    } finally {
-        if (stopLoadingSound.current) {
-            stopLoadingSound.current();
-        }
+      
+      if (stopLoadingSound.current) {
+        stopLoadingSound.current();
+      }
       setLoading(false);
-    }
-  }, [language, t.errorMessage]);
+    }, 2000);
+  }, [language]);
   
   const handleTranslate = async () => {
     if (!storyLanguage || storyPages.length === 0) return;
@@ -324,52 +253,19 @@ const App = () => {
     setIsTranslating(true);
     setError(null);
 
-    const targetLanguage = storyLanguage === 'ko' ? 'English' : 'Korean';
-    const sourceLanguage = storyLanguage === 'ko' ? 'Korean' : 'English';
-    
-    const originalTexts = storyPages.map(page => page.text);
+    // 1초 후에 언어를 변경 (데모용)
+    setTimeout(() => {
+      const targetLanguage = storyLanguage === 'ko' ? 'en' : 'ko';
+      const translatedStory = dummyStories[targetLanguage].map((page, index) => ({
+        text: storyPages[index] ? page.text.replace(/\*\*Alex\*\*/g, storyPages[index].text.match(/\*\*(.*?)\*\*/)?.[1] ? `**${storyPages[index].text.match(/\*\*(.*?)\*\*/)?.[1]}**` : '**Alex**').replace(/\*\*알렉스\*\*/g, storyPages[index].text.match(/\*\*(.*?)\*\*/)?.[1] ? `**${storyPages[index].text.match(/\*\*(.*?)\*\*/)?.[1]}**` : '**알렉스**') : page.text,
+        image: page.image
+      }));
 
-    const prompt = `You are an expert translator specializing in children's literature.
-    Translate the following story parts from ${sourceLanguage} to ${targetLanguage}.
-    The story is for a young child, so maintain a simple, magical, and age-appropriate tone.
-    Preserve any markdown bolding for names exactly as it appears in the original text.
-    The output must be a valid JSON array of strings, with each string being a translated story part.
-    
-    Original texts:
-    ${JSON.stringify(originalTexts)}
-    `;
-
-    try {
-        const ai = new GoogleGenAI({ apiKey: apiKey as string });
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: translationSchema,
-            }
-        });
-
-        const translatedTexts = JSON.parse(response.text);
-
-        if (!Array.isArray(translatedTexts) || translatedTexts.length !== storyPages.length) {
-            throw new Error("Translation response was not in the expected format.");
-        }
-
-        const newStoryPages = storyPages.map((page, index) => ({
-            ...page,
-            text: translatedTexts[index],
-        }));
-
-        setStoryPages(newStoryPages);
-        setStoryLanguage(storyLanguage === 'ko' ? 'en' : 'ko');
-        playSuccessSound();
-
-    } catch (err: any) {
-        setError(`${t.errorMessage} ${err.message}`);
-    } finally {
-        setIsTranslating(false);
-    }
+      setStoryPages(translatedStory);
+      setStoryLanguage(targetLanguage);
+      playSuccessSound();
+      setIsTranslating(false);
+    }, 1000);
   };
 
   const handleReadAloud = useCallback(() => {
@@ -404,6 +300,16 @@ const App = () => {
     <div className="container">
       <header className="header">
         <h1 className="title">{t.title}</h1>
+        <p style={{ 
+          backgroundColor: '#FFF3CD', 
+          color: '#856404', 
+          padding: '10px', 
+          borderRadius: '5px', 
+          margin: '10px 0',
+          border: '1px solid #FFEAA7'
+        }}>
+          {t.demoNotice}
+        </p>
       </header>
       <main className="content-wrapper">
         <div className="form-container">
@@ -519,4 +425,4 @@ const App = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
-root.render(<App />);
+root.render(<App />)

@@ -203,6 +203,30 @@ const App = () => {
 
   const t = translations[language];
 
+  // This check prevents the app from crashing with a blank screen on environments
+  // like GitHub Pages where process.env.API_KEY is not available.
+  if (!process.env.API_KEY) {
+    return (
+      <div className="container">
+        <header className="header">
+          <h1 className="title">{t.title}</h1>
+        </header>
+        <main className="content-wrapper">
+          <div className="config-error-container">
+            <div className="config-error-message">
+              <h2>{language === 'ko' ? '설정 오류' : 'Configuration Error'}</h2>
+              <p>
+                {language === 'ko' 
+                  ? 'API 키가 설정되지 않아 앱을 실행할 수 없습니다. 배포 환경에 API_KEY가 올바르게 설정되었는지 확인해주세요.' 
+                  : 'The application cannot run because the API Key is not set. Please ensure the API_KEY is configured correctly in the deployment environment.'}
+              </p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   const handleLanguageChange = (newLang: 'ko' | 'en') => {
     if (language === newLang) return;
     setLanguage(newLang);
@@ -291,7 +315,7 @@ const App = () => {
         }
       setLoading(false);
     }
-  }, [language]);
+  }, [language, t.errorMessage]);
   
   const handleTranslate = async () => {
     if (!storyLanguage || storyPages.length === 0) return;

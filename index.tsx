@@ -6,6 +6,10 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { useState, useCallback, useRef, Fragment, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
+// Safely get the API key in a way that doesn't crash the browser.
+// The `process` object does not exist in browser environments like GitHub Pages.
+const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : undefined;
+
 // Replaced MagicWandIcon with PencilIcon for a clearer, cuter look.
 const PencilIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
@@ -204,8 +208,8 @@ const App = () => {
   const t = translations[language];
 
   // This check prevents the app from crashing with a blank screen on environments
-  // like GitHub Pages where process.env.API_KEY is not available.
-  if (!process.env.API_KEY) {
+  // like GitHub Pages where the API_KEY is not available.
+  if (!apiKey) {
     return (
       <div className="container">
         <header className="header">
@@ -257,7 +261,7 @@ const App = () => {
     const prompt = getPrompt(language, childAge, childName, favoriteThings);
     
     try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+      const ai = new GoogleGenAI({ apiKey: apiKey as string });
       const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
@@ -339,7 +343,7 @@ const App = () => {
     `;
 
     try {
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
+        const ai = new GoogleGenAI({ apiKey: apiKey as string });
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,

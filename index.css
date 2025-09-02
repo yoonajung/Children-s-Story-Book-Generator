@@ -54,6 +54,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  flex-grow: 1; /* Added to help center error message */
 }
 
 .form-container {
@@ -301,6 +302,30 @@ body {
   padding: 1rem;
   background: #ffcdd2;
   border-radius: 8px;
+}
+
+.config-error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 1;
+  padding: 2rem;
+}
+
+.config-error-message {
+  color: #d32f2f;
+  text-align: center;
+  padding: 2rem;
+  background: #ffcdd2;
+  border-radius: var(--border-radius);
+  border: 2px solid #ef9a9a;
+  max-width: 600px;
+  box-shadow: var(--box-shadow);
+}
+
+.config-error-message h2 {
+  margin-bottom: 1rem;
+  color: #c62828;
 }
 
 .spinner {

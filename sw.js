@@ -2,13 +2,13 @@
 
 const CACHE_NAME = 'storybook-generator-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/index.css',
-  '/index.tsx',
+  './',
+  'index.html',
+  'index.css',
+  'index.tsx',
   'https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  'icons/icon-192x192.png',
+  'icons/icon-512x512.png'
 ];
 
 self.addEventListener('install', event => {

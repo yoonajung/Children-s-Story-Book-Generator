@@ -2,18 +2,18 @@
   "name": "나만의 그림동화책 생성기",
   "short_name": "그림동화 생성기",
   "description": "AI를 사용하여 자녀를 위한 개인화된 대화형 동화 및 오디오북을 생성하세요.",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#E3F2FD",
   "theme_color": "#4A90E2",
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "icons/icon-192x192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "icons/icon-512x512.png",
       "type": "image/png",
       "sizes": "512x512"
     }

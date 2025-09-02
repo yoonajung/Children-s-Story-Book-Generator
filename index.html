@@ -26,8 +26,7 @@
 </script>
   <!-- Add Babel Standalone to transpile TSX in the browser -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <!-- Change script type to text/babel so Babel can process it -->
-  <script type="text/babel" data-type="module" src="index.tsx"></script>
+  <!-- Instruct Babel to use TypeScript and React presets to correctly parse the TSX file -->
+  <script type="text/babel" data-presets="typescript,react" data-type="module" src="index.tsx"></script>
 </body>
 </html>
-

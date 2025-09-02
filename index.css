@@ -132,6 +132,68 @@ body {
   background-color: var(--white);
 }
 
+.art-style-group {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.art-style-group legend {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: var(--primary-color);
+  padding: 0;
+}
+
+.art-style-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.art-style-options input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.art-style-options label {
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  background-color: #f0f4f8;
+  color: var(--text-color);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  text-align: center;
+}
+
+.art-style-options input[type="radio"]:checked + label {
+  background-color: var(--accent-color);
+  color: var(--white);
+  border-color: #E65100;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.art-style-options input[type="radio"]:focus + label {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(255, 167, 38, 0.3);
+}
+
+.art-style-options label:hover {
+  background-color: #dfe9f2;
+}
+
+.art-style-options input[type="radio"]:checked + label:hover {
+  background-color: #FB8C00;
+}
+
 .btn {
   padding: 0.8rem 1.5rem;
   border: none;
@@ -157,6 +219,7 @@ body {
   background-color: var(--accent-color);
   color: var(--white);
   border-bottom: 3px solid #E65100;
+  margin-top: 0.5rem; /* Add some space above the main button */
 }
 
 .btn-primary:hover:not(:disabled) {

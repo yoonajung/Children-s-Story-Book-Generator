@@ -4,14 +4,942 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>나만의 그림동화책 생성기</title>
+  
+  <!-- App Icon and Manifest Links -->
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#4A90E2">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #4A90E2; /* Friendly Blue */
+      --secondary-color: #FFF9C4; /* Soft Yellow */
+      --accent-color: #FFA726; /* Cheerful Orange */
+      --text-color: #333333;
+      --bg-color: #E3F2FD; /* Sky Blue */
+      --white: #ffffff;
+      --error-color: #d32f2f;
+      --border-radius: 16px;
+      --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding: 20px;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    #root {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      width: 100%;
+    }
+    
+    .api-key-container {
+      background: var(--white);
+      padding: 2.5rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      text-align: center;
+      max-width: 600px;
+      margin: 40px auto;
+      border: 1px solid #fff;
+    }
+    
+    .api-key-container h2 {
+      color: var(--primary-color);
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .api-key-container p {
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+      color: #666;
+    }
+
+    .api-key-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .api-key-input {
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+      font-family: 'Nunito', sans-serif;
+    }
+    
+    .title {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 3em;
+      text-align: center;
+      color: var(--primary-color);
+      text-shadow: 2px 2px 0px var(--white);
+      margin: 0;
+    }
+
+    .content-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex-grow: 1; 
+    }
+
+    .form-container {
+      background: var(--white);
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      border: 1px solid #fff;
+    }
+
+    .story-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    .lang-selector-buttons {
+      display: flex;
+      width: 100%;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #ddd;
+    }
+    .lang-selector-buttons button {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      background-color: #f9f9f9;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+      color: var(--text-color);
+      font-size: 1rem;
+    }
+    .lang-selector-buttons button:first-child {
+      border-right: 1px solid #ddd;
+    }
+    .lang-selector-buttons button.active {
+      background-color: var(--primary-color);
+      color: var(--white);
+    }
+    .lang-selector-buttons button:not(.active):hover {
+      background-color: #efefef;
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      font-size: 1rem;
+      font-family: 'Nunito', sans-serif;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background-color: #f9f9f9;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(255, 167, 38, 0.3);
+      background-color: var(--white);
+    }
+
+    .art-style-group {
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .art-style-group legend {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--primary-color);
+      padding: 0;
+    }
+
+    .art-style-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .art-style-options input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .art-style-options label {
+      display: inline-block;
+      padding: 0.6rem 1.2rem;
+      border-radius: 20px;
+      background-color: #f0f4f8;
+      color: var(--text-color);
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+      text-align: center;
+    }
+
+    .art-style-options input[type="radio"]:checked + label {
+      background-color: var(--accent-color);
+      color: var(--white);
+      border-color: #E65100;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+
+    .art-style-options input[type="radio"]:focus + label {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(255, 167, 38, 0.3);
+    }
+
+    .art-style-options label:hover {
+      background-color: #dfe9f2;
+    }
+
+    .art-style-options input[type="radio"]:checked + label:hover {
+      background-color: #FB8C00;
+    }
+
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      font-family: 'Nunito', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn .icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: var(--white);
+      border-bottom: 3px solid #E65100;
+      margin-top: 0.5rem; 
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background-color: #FB8C00;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .btn-primary:disabled {
+      background-color: #ffcc80;
+      border-bottom-color: #ffa726;
+      cursor: not-allowed;
+      color: #a6a6a6;
+    }
+
+    .story-container {
+      background: var(--secondary-color);
+      padding: 2rem;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      border: 4px solid var(--white);
+      justify-content: center;
+    }
+
+    .story-placeholder {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: #9E9E9E;
+      font-size: 1.2rem;
+      flex-grow: 1;
+    }
+
+    .storybook-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    .storybook-page {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .story-content {
+      font-size: 1.2rem;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      flex-grow: 1;
+    }
+
+    .story-content strong {
+      color: var(--primary-color);
+      font-weight: 900;
+    }
+
+    .storybook-controls {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: center;
+    }
+
+    .storybook-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+
+    .nav-button {
+      background-color: var(--white);
+      color: var(--primary-color);
+      border: 2px solid #B3E5FC;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .nav-button .icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    .nav-button:hover:not(:disabled) {
+      background-color: #E1F5FE;
+      border-color: #81D4FA;
+      transform: translateY(-1px);
+    }
+
+    .nav-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .page-indicator {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    .btn-secondary {
+      background-color: var(--white);
+      color: var(--primary-color);
+      border: 2px solid #B3E5FC;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background-color: #E1F5FE;
+      border-color: #81D4FA;
+    }
+
+    .btn-secondary:disabled {
+      background-color: #f0f8ff;
+      color: #a4c4e2;
+      border-color: #d4eafb;
+      cursor: not-allowed;
+    }
+
+    .action-buttons-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .read-aloud-btn, .translate-btn {
+      min-width: 180px;
+    }
+
+    .error-message {
+      color: var(--error-color);
+      text-align: center;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #ffcdd2;
+      border-radius: 8px;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--white);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    .spinner-small {
+      width: 16px;
+      height: 16px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .image-placeholder {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background-color: #f0f4f8;
+      border-radius: calc(var(--border-radius) - 8px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border: 2px dashed #d0e0f0;
+      flex-direction: column;
+      gap: 10px;
+      color: var(--primary-color);
+      font-weight: 700;
+      text-align: center;
+      padding: 1rem;
+    }
+    
+    .image-placeholder.error {
+        border-color: var(--error-color);
+        color: var(--error-color);
+        background-color: #ffcdd2;
+    }
+
+    .image-placeholder .error-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+    
+    .image-placeholder .error-details {
+        font-size: 0.8rem;
+        margin-top: 10px;
+        max-width: 90%;
+        font-weight: 400;
+        word-break: break-all;
+    }
+
+    .image-spinner {
+      width: 40px;
+      height: 40px;
+      border: 5px solid rgba(74, 144, 226, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    .story-image-container {
+      width: 100%;
+      margin-bottom: 1.5rem;
+      border-radius: calc(var(--border-radius) - 8px);
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .story-image {
+      width: 100%;
+      display: block;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      background-color: #f0f0f0;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* --- Responsive Design for Desktop --- */
+    @media (min-width: 900px) {
+      .content-wrapper {
+        flex-direction: row;
+        align-items: stretch;
+      }
+      .form-container {
+        flex: 0 0 400px;
+      }
+      .story-container {
+        flex: 1;
+      }
+      .storybook-controls {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+      }
+      .storybook-navigation {
+        width: auto;
+        gap: 1rem;
+      }
+    }
+
+    .header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      position: relative;
+      padding: 1rem 0;
+    }
+    
+    .hidden {
+        display: none !important;
+    }
+
+    /* --- Responsive Design for Mobile --- */
+    @media (max-width: 600px) {
+      body {
+        padding: 10px;
+      }
+      .title {
+        font-size: 2.2em;
+      }
+      .api-key-container,
+      .form-container,
+      .story-container {
+        padding: 1.5rem;
+      }
+      .api-key-container h2 {
+        font-size: 1.5rem;
+      }
+      .story-content {
+        font-size: 1.1rem;
+      }
+      .btn {
+        font-size: 1rem;
+        padding: 0.8rem 1.2rem;
+      }
+      .art-style-options label {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+      .read-aloud-btn, .translate-btn {
+        min-width: 0;
+        flex-grow: 1;
+      }
+    }
+  </style>
 </head>
 <body>
   <div id="root"></div>
-  <script type="module" src="/src/main.tsx"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "@google/genai": "https://esm.sh/@google/genai@^0.12.0"
+      }
+    }
+  </script>
+  <script type="module">
+    import { GoogleGenAI, Type } from '@google/genai';
+
+    const translations = {
+      ko: { title: "나만의 그림동화책 생성기", languageLabel: "언어", childNameLabel: "아이의 이름은 무엇인가요?", childNameDefault: "알렉스", childAgeLabel: "나이는 몇 살인가요?", childAgeDefault: "5", favoriteThingsLabel: "가장 좋아하는 것은 무엇인가요?", favoriteThingsDefault: "공룡과 우주 로켓", artStyleLabel: "그림 스타일", artStyleCartoon: "기운찬 카툰", artStyleWatercolor: "꿈같은 수채화", artStyleClaymation: "아늑한 클레이메이션", submitButton: "나만의 멋진 동화 만들기!", submitButtonLoading: "글 쓰는 중...", storyPlaceholder: "마법 같은 이야기와 멋진 그림이 여기에 나타날 거예요!", readAloudButton: "소리 내어 읽기", stopReadingButton: "읽기 중지", errorMessage: "문제가 발생했습니다! 다시 시도해 주세요. 오류: ", imageAltText: (page) => `동화 삽화 페이지 ${page}`, imagePlaceholderText: "그림 그리는 중...", pageIndicator: (current, total) => `${current} / ${total} 페이지`, prevButton: "이전", nextButton: "다음", translateToEnglish: "영어로 번역", translateToKorean: "한국어로 번역", translatingButton: "번역 중...", apiKeyTitle: "API 키 설정", apiKeyPrompt: "앱을 사용하려면 Gemini API 키가 필요합니다. 키를 아래에 입력하고 저장해주세요. 키는 브라우저에만 저장됩니다.", apiKeyInputPlaceholder: "여기에 API 키를 붙여넣으세요", apiKeySaveButton: "키 저장하고 시작하기", imageErrorTitle: "어이쿠!", imageErrorText: "그림을 불러오지 못했어요." },
+      en: { title: "Children's Story Generator", languageLabel: "Language", childNameLabel: "What is your child's name?", childNameDefault: "Alex", childAgeLabel: "How old are they?", childAgeDefault: "5", favoriteThingsLabel: "What are their favorite things?", favoriteThingsDefault: "dinosaurs and space rockets", artStyleLabel: "Art Style", artStyleCartoon: "Cute Cartoon", artStyleWatercolor: "Dreamy Watercolor", artStyleClaymation: "Cozy Claymation", submitButton: "Write my Story!", submitButtonLoading: "Writing story...", storyPlaceholder: "Your magical story and a beautiful illustration will appear here!", readAloudButton: "Read Aloud", stopReadingButton: "Stop Reading", errorMessage: "Something went wrong! Please try again. Error: ", imageAltText: (page) => `Story illustration page ${page}`, imagePlaceholderText: "Painting your picture...", pageIndicator: (current, total) => `Page ${current} of ${total}`, prevButton: "Prev", nextButton: "Next", translateToEnglish: "Translate to English", translateToKorean: "Translate to Korean", translatingButton: "Translating...", apiKeyTitle: "API Key Setup", apiKeyPrompt: "To use the app, you need a Gemini API key. Please enter it below. Your key is only saved in your browser.", apiKeyInputPlaceholder: "Paste your API key here", apiKeySaveButton: "Save Key and Start", imageErrorTitle: "Oops!", imageErrorText: "Image failed to load." },
+    };
+
+    const storySchema = { type: Type.OBJECT, properties: { pages: { type: Type.ARRAY, description: "An array of 3 storybook pages.", items: { type: Type.OBJECT, properties: { story_part: { type: Type.STRING, description: "One part of the story (beginning, middle, or end). Should be about 60-70 words. The hero's name must be in markdown bold.", }, image_prompt: { type: Type.STRING, description: "A whimsical, vibrant, and cute illustration prompt for a children's storybook, based on the story part.", }, }, required: ["story_part", "image_prompt"], }, }, }, required: ["pages"], };
+    const translationSchema = { type: Type.ARRAY, description: "An array of translated story parts, corresponding to the input array.", items: { type: Type.STRING, description: "A single translated story part." } };
+    
+    const getPrompt = (language, childAge, childName, favoriteThings, artStyle) => {
+        if (language === 'ko') { return `${childAge}살 **${childName}** 어린이를 위한, 세 부분(시작, 중간, 끝)으로 구성된 짧고 마법 같은 동화책을 만들어주세요. 아이가 가장 좋아하는 것들인 **${favoriteThings}**에 대한 이야기여야 합니다. 흥미진진하고, 나이에 맞는 쉬운 단어를 사용하고, **${childName}** 어린이가 영웅이 되는 행복한 결말로 만들어주세요. **이야기는 반드시 한국어로 작성해야 합니다.** 각 이야기 부분에 대해, 그 내용과 어울리는 어린이 동화책 스타일의 기발하고 생생하며 귀여운 삽화를 생성할 수 있는 이미지 프롬프트도 함께 제공해주세요. **삽화 스타일은 반드시 '${artStyle}' 이어야 합니다.** 아이의 이름이 나올 때마다 마크다운 굵은 글씨로 강조해주세요.`; }
+        return `Create a short, magical children's storybook in three parts (beginning, middle, end) for a ${childAge}-year-old child named **${childName}**. The story should be about their favorite things: **${favoriteThings}**. Make the story exciting, use simple words, and have a happy ending where **${childName}** is the hero. For each part, also provide a descriptive prompt to generate a whimsical, vibrant, and cute illustration for a children's storybook that matches the story part. **The illustration style must be '${artStyle}'.** Make sure to highlight the child's name in markdown bold every time it appears.`;
+    }
+    
+    // --- STATE MANAGEMENT ---
+    const AppState = {
+        apiKey: localStorage.getItem('GEMINI_API_KEY') || '',
+        ai: null,
+        language: 'ko',
+        storyPages: [],
+        currentPage: 0,
+        storyLanguage: null,
+        loading: false,
+        isTranslating: false,
+        isReading: false,
+        error: null,
+    };
+
+    // --- DOM ELEMENTS ---
+    const root = document.getElementById('root');
+
+    // --- MAIN RENDER FUNCTION ---
+    const render = () => {
+        const t = translations[AppState.language];
+        
+        if (!AppState.apiKey) {
+            root.innerHTML = `
+                <div class="api-key-container">
+                    <h2>${t.apiKeyTitle}</h2>
+                    <p>${t.apiKeyPrompt}</p>
+                    <form class="api-key-form" id="apiKeyForm">
+                        <input type="password" name="apiKey" class="api-key-input" placeholder="${t.apiKeyInputPlaceholder}" required>
+                        <button type="submit" class="btn btn-primary">${t.apiKeySaveButton}</button>
+                    </form>
+                </div>`;
+            return;
+        }
+
+        root.innerHTML = `
+            <div class="container">
+                <header class="header">
+                    <h1 class="title">${t.title}</h1>
+                </header>
+                <main class="content-wrapper">
+                    <div class="form-container">
+                        <form class="story-form" id="storyForm">
+                            <!-- Language Selector -->
+                            <div class="form-group">
+                                <label>${t.languageLabel}</label>
+                                <div class="lang-selector-buttons">
+                                    <button type="button" id="lang-ko" class="${AppState.language === 'ko' ? 'active' : ''}">한국어</button>
+                                    <button type="button" id="lang-en" class="${AppState.language === 'en' ? 'active' : ''}">English</button>
+                                </div>
+                            </div>
+                            <!-- Form Inputs -->
+                            <div class="form-group">
+                                <label for="childName">${t.childNameLabel}</label>
+                                <input type="text" id="childName" name="childName" value="${t.childNameDefault}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="childAge">${t.childAgeLabel}</label>
+                                <input type="number" id="childAge" name="childAge" value="${t.childAgeDefault}" required min="1" max="10">
+                            </div>
+                            <div class="form-group">
+                                <label for="favoriteThings">${t.favoriteThingsLabel}</label>
+                                <input type="text" id="favoriteThings" name="favoriteThings" value="${t.favoriteThingsDefault}" required>
+                            </div>
+                            <!-- Art Style -->
+                            <div class="form-group">
+                                <fieldset class="art-style-group">
+                                    <legend>${t.artStyleLabel}</legend>
+                                    <div class="art-style-options">
+                                        <div><input type="radio" id="style-cartoon" name="artStyle" value="Cute Cartoon" checked><label for="style-cartoon">${t.artStyleCartoon}</label></div>
+                                        <div><input type="radio" id="style-watercolor" name="artStyle" value="Dreamy Watercolor"><label for="style-watercolor">${t.artStyleWatercolor}</label></div>
+                                        <div><input type="radio" id="style-claymation" name="artStyle" value="Cozy Claymation"><label for="style-claymation">${t.artStyleClaymation}</label></div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary" id="submitBtn" ${AppState.loading ? 'disabled' : ''}>
+                                ${AppState.loading ? `<div class="spinner"></div><span>${t.submitButtonLoading}</span>` : `<img src="icons/pencil.svg" class="icon" alt=""><span>${t.submitButton}</span>`}
+                            </button>
+                        </form>
+                        <div id="errorMessage"></div>
+                    </div>
+                    <div class="story-container" id="storyContainer">
+                        <!-- Story content will be rendered here -->
+                    </div>
+                </main>
+            </div>
+        `;
+        updateStoryContainer();
+    };
+    
+    const updateStoryContainer = () => {
+        const t = translations[AppState.language];
+        const storyContainer = document.getElementById('storyContainer');
+        if (!storyContainer) return;
+
+        if (AppState.storyPages.length > 0) {
+            const page = AppState.storyPages[AppState.currentPage];
+            storyContainer.innerHTML = `
+                <div class="storybook-container">
+                    <div class="storybook-page">
+                        <div id="image-container-${AppState.currentPage}">
+                            ${page.image 
+                                ? `<div class="story-image-container"><img src="${page.image}" alt="${t.imageAltText(AppState.currentPage + 1)}" class="story-image"></div>` 
+                                : `<div class="image-placeholder"><div class="image-spinner"></div><span>${t.imagePlaceholderText}</span></div>`}
+                        </div>
+                        <div class="story-content">${page.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br />')}</div>
+                    </div>
+                    <div class="storybook-controls">
+                        <div class="storybook-navigation">
+                            <button id="prevBtn" class="nav-button" ${AppState.currentPage === 0 ? 'disabled' : ''}><img src="icons/arrow-left.svg" class="icon" alt="Previous page"><span>${t.prevButton}</span></button>
+                            <span class="page-indicator">${t.pageIndicator(AppState.currentPage + 1, AppState.storyPages.length)}</span>
+                            <button id="nextBtn" class="nav-button" ${AppState.currentPage === AppState.storyPages.length - 1 ? 'disabled' : ''}><span>${t.nextButton}</span><img src="icons/arrow-right.svg" class="icon" alt="Next page"></button>
+                        </div>
+                        <div class="action-buttons-group">
+                            <button id="translateBtn" class="btn btn-secondary translate-btn" ${!AppState.storyLanguage || AppState.isTranslating ? 'disabled' : ''}>
+                                ${AppState.isTranslating ? `<div class="spinner-small"></div><span>${t.translatingButton}</span>` : `<span>${AppState.storyLanguage === 'ko' ? t.translateToEnglish : t.translateToKorean}</span>`}
+                            </button>
+                            <button id="readAloudBtn" class="btn btn-secondary read-aloud-btn">
+                                <img src="icons/${AppState.isReading ? 'stop.svg' : 'speaker.svg'}" class="icon" alt="Read aloud"><span>${AppState.isReading ? t.stopReadingButton : t.readAloudButton}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (!AppState.loading) {
+            storyContainer.innerHTML = `<div class="story-placeholder">${t.storyPlaceholder}</div>`;
+        }
+    };
+    
+    const updateError = () => {
+        const errorMessageDiv = document.getElementById('errorMessage');
+        if (!errorMessageDiv) return;
+        errorMessageDiv.innerHTML = AppState.error ? `<p class="error-message">${AppState.error}</p>` : '';
+    };
+
+    // --- EVENT HANDLERS ---
+    const handleApiKeySave = (event) => {
+        event.preventDefault();
+        const key = event.target.elements.apiKey.value;
+        if (key) {
+            localStorage.setItem('GEMINI_API_KEY', key);
+            AppState.apiKey = key;
+            AppState.ai = new GoogleGenAI({ apiKey: key });
+            render();
+            addEventListeners();
+        }
+    };
+
+    const handleLanguageChange = (lang) => {
+        if (AppState.language === lang) return;
+        AppState.language = lang;
+        AppState.storyPages = [];
+        AppState.currentPage = 0;
+        AppState.error = null;
+        AppState.storyLanguage = null;
+        if (window.speechSynthesis) speechSynthesis.cancel();
+        AppState.isReading = false;
+        render();
+        addEventListeners();
+    };
+
+    const handleGenerateStory = async (event) => {
+        event.preventDefault();
+        AppState.loading = true;
+        AppState.storyPages = [];
+        AppState.currentPage = 0;
+        AppState.error = null;
+        AppState.storyLanguage = null;
+        render();
+        addEventListeners();
+
+        const formData = new FormData(event.target);
+        const artStyle = document.querySelector('input[name="artStyle"]:checked').value;
+        const prompt = getPrompt(AppState.language, formData.get('childAge'), formData.get('childName'), formData.get('favoriteThings'), artStyle);
+        const t = translations[AppState.language];
+
+        try {
+            // 1. Generate story text first
+            const response = await AppState.ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt, config: { responseMimeType: "application/json", responseSchema: storySchema } });
+            const storyData = JSON.parse(response.text);
+            if (!storyData.pages || storyData.pages.length === 0) throw new Error("Invalid story structure.");
+
+            AppState.storyPages = storyData.pages.map(p => ({ text: p.story_part, image: null }));
+            AppState.storyLanguage = AppState.language;
+            AppState.loading = false;
+            
+            updateStoryContainer();
+            addEventListeners();
+            const submitBtn = document.getElementById('submitBtn');
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `<img src="icons/pencil.svg" class="icon" alt=""><span>${t.submitButton}</span>`;
+            }
+            
+            // 3. Generate images in the background
+            storyData.pages.forEach(async (pageData, index) => {
+                try {
+                    const imageResponse = await AppState.ai.models.generateImages({ model: 'imagen-4.0-generate-001', prompt: pageData.image_prompt, config: { numberOfImages: 1, outputMimeType: 'image/jpeg', aspectRatio: '16:9' } });
+                    AppState.storyPages[index].image = `data:image/jpeg;base64,${imageResponse.generatedImages[0].image.imageBytes}`;
+                    
+                    if(index === AppState.currentPage) {
+                        const imageContainer = document.getElementById(`image-container-${index}`);
+                        if (imageContainer) {
+                           imageContainer.innerHTML = `<div class="story-image-container"><img src="${AppState.storyPages[index].image}" alt="${t.imageAltText(index + 1)}" class="story-image"></div>`;
+                        }
+                    }
+                } catch (imgErr) {
+                    console.error(`Image generation failed for page ${index + 1}:`, imgErr);
+                     const imageContainer = document.getElementById(`image-container-${index}`);
+                     if(imageContainer) {
+                        const errorMessage = imgErr.message ? imgErr.message : 'Unknown error';
+                        imageContainer.innerHTML = `<div class="image-placeholder error">
+                            <span class="error-title">${t.imageErrorTitle}</span>
+                            <span>${t.imageErrorText}</span>
+                            <span class="error-details">Error: ${errorMessage}</span>
+                        </div>`;
+                     }
+                }
+            });
+
+        } catch (err) {
+            AppState.error = `${t.errorMessage} ${err.message}`;
+            AppState.loading = false;
+            render();
+            addEventListeners();
+        }
+    };
+    
+    const handleTranslate = async () => {
+        if (!AppState.storyLanguage || AppState.storyPages.length === 0) return;
+        AppState.isTranslating = true;
+        AppState.error = null;
+        updateStoryContainer();
+        addEventListeners();
+
+        const targetLanguage = AppState.storyLanguage === 'ko' ? 'English' : 'Korean';
+        const sourceLanguage = AppState.storyLanguage === 'ko' ? 'Korean' : 'English';
+        const originalTexts = AppState.storyPages.map(page => page.text);
+        const prompt = `Translate from ${sourceLanguage} to ${targetLanguage} for a child, maintaining a simple, magical tone and preserving markdown bolding. Input: ${JSON.stringify(originalTexts)}`;
+
+        try {
+            const response = await AppState.ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt, config: { responseMimeType: "application/json", responseSchema: translationSchema } });
+            const translatedTexts = JSON.parse(response.text);
+            if (!Array.isArray(translatedTexts) || translatedTexts.length !== AppState.storyPages.length) throw new Error("Translation format error.");
+            
+            AppState.storyPages = AppState.storyPages.map((page, i) => ({ ...page, text: translatedTexts[i] }));
+            AppState.storyLanguage = AppState.storyLanguage === 'ko' ? 'en' : 'ko';
+        } catch (err) {
+            AppState.error = `${translations[AppState.language].errorMessage} ${err.message}`;
+            updateError();
+        } finally {
+            AppState.isTranslating = false;
+            updateStoryContainer();
+            addEventListeners();
+        }
+    };
+    
+    const handleReadAloud = () => {
+        if (AppState.isReading) {
+            speechSynthesis.cancel();
+            AppState.isReading = false;
+        } else {
+            const page = AppState.storyPages[AppState.currentPage];
+            if (page && AppState.storyLanguage) {
+                const textToRead = page.text.replace(/\*\*/g, '');
+                const utterance = new SpeechSynthesisUtterance(textToRead);
+                utterance.lang = AppState.storyLanguage === 'ko' ? 'ko-KR' : 'en-US';
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1;
+                utterance.onend = () => {
+                    AppState.isReading = false;
+                    updateStoryContainer();
+                    addEventListeners();
+                };
+                speechSynthesis.speak(utterance);
+                AppState.isReading = true;
+            }
+        }
+        updateStoryContainer();
+        addEventListeners();
+    };
+
+    const navigatePage = (direction) => {
+        const newPage = AppState.currentPage + direction;
+        if (newPage >= 0 && newPage < AppState.storyPages.length) {
+            AppState.currentPage = newPage;
+            if (speechSynthesis.speaking) speechSynthesis.cancel();
+            AppState.isReading = false;
+            updateStoryContainer();
+            addEventListeners();
+        }
+    };
+
+    // --- ADD EVENT LISTENERS ---
+    const addEventListeners = () => {
+        const apiKeyForm = document.getElementById('apiKeyForm');
+        if (apiKeyForm) apiKeyForm.addEventListener('submit', handleApiKeySave);
+
+        const storyForm = document.getElementById('storyForm');
+        if (storyForm) storyForm.addEventListener('submit', handleGenerateStory);
+
+        const langKoBtn = document.getElementById('lang-ko');
+        if (langKoBtn) langKoBtn.addEventListener('click', () => handleLanguageChange('ko'));
+
+        const langEnBtn = document.getElementById('lang-en');
+        if (langEnBtn) langEnBtn.addEventListener('click', () => handleLanguageChange('en'));
+        
+        const prevBtn = document.getElementById('prevBtn');
+        if (prevBtn) prevBtn.addEventListener('click', () => navigatePage(-1));
+
+        const nextBtn = document.getElementById('nextBtn');
+        if (nextBtn) nextBtn.addEventListener('click', () => navigatePage(1));
+        
+        const translateBtn = document.getElementById('translateBtn');
+        if (translateBtn) translateBtn.addEventListener('click', handleTranslate);
+
+        const readAloudBtn = document.getElementById('readAloudBtn');
+        if (readAloudBtn) readAloudBtn.addEventListener('click', handleReadAloud);
+    };
+
+    // --- INITIALIZATION ---
+    try {
+        if (AppState.apiKey) {
+            AppState.ai = new GoogleGenAI({ apiKey: AppState.apiKey });
+        }
+        render();
+        addEventListeners();
+    } catch (e) {
+        document.body.innerHTML = `<div style="padding: 20px; text-align: center; font-family: sans-serif; color: red;"><h2>An unexpected error occurred</h2><p>Could not initialize the application. Please check the browser console for details.</p><pre>${e.message}</pre></div>`;
+        console.error(e);
+    }
+    
+  </script>
 </body>
 </html>

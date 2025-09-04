@@ -1,23 +1,25 @@
 {
-  "name": "storybook-functions",
-  "description": "Cloud Functions for the AI Storybook Generator",
-  "main": "index.js",
+  "name": "나만의-그림동화책-생성기---children's-story-generator",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "predeploy": "npm run build && powershell -Command \"Copy-Item dist/index.html dist/404.html\"",
+    "deploy": "gh-pages -d dist"
+  },
   "dependencies": {
-    "@google/genai": "^0.1.0",
-    "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "firebase-admin": "^11.11.1",
-    "firebase-functions": "^4.5.0"
+    "@google/genai": "^0.12.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
-  "engines": {
-    "node": "18"
-  },
-  "private": true
-}
-"scripts": {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview",
-  "predeploy": "npm run build && cp dist/index.html dist/404.html",
-  "deploy": "gh-pages -d dist"
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^6.2.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0",
+    "gh-pages": "^6.1.1"
+  }
 }

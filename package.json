@@ -14,3 +14,10 @@
   },
   "private": true
 }
+"scripts": {
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview",
+  "predeploy": "npm run build && cp dist/index.html dist/404.html",
+  "deploy": "gh-pages -d dist"
+}

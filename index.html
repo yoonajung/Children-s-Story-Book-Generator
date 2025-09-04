@@ -1,81 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>나만의 그림동화책 생성기</title>
-  
-  <!-- App Icon and Manifest Links -->
-  <link rel="icon" href="favicon.ico" sizes="any">
-  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4A90E2">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>나만의 그림동화책 생성기</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="index.css">
-</head>
-<body>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#4A90E2" />
 
-  <div id="root">
-    <div class="container">
-      <h1 class="title">나만의 그림동화책 생성기</h1>
-
-      <div class="content-wrapper">
-        <div class="form-container">
-          <form id="story-form" class="story-form">
-            <div class="form-group">
-              <label>언어 선택 (Language)</label>
-              <div class="lang-selector-buttons">
-                <button type="button" id="lang-ko" class="active">한국어</button>
-                <button type="button" id="lang-en">English</button>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="main-character">주인공 (Main Character)</label>
-              <input type="text" id="main-character" placeholder="예: 용감한 토끼" required>
-            </div>
-            <div class="form-group">
-              <label for="setting">배경 (Setting)</label>
-              <input type="text" id="setting" placeholder="예: 마법의 숲" required>
-            </div>
-            <div class="form-group">
-              <label for="plot">줄거리 (Plot)</label>
-              <input type="text" id="plot" placeholder="예: 잃어버린 보물을 찾아서" required>
-            </div>
-            <div class="form-group">
-              <label for="lesson">교훈 (Lesson)</label>
-              <input type="text" id="lesson" placeholder="예: 우정의 중요성" required>
-            </div>
-             <div class="form-group art-style-group">
-              <label for="art-style">그림 스타일 (Art Style)</label>
-              <div class="art-style-container">
-                  <select id="art-style">
-                      <option value="storybook illustration">동화책 삽화</option>
-                      <option value="disney pixar animation style">디즈니/픽사 스타일</option>
-                      <option value="ghibli studio anime style">지브리 스튜디오 스타일</option>
-                      <option value="watercolor painting">수채화</option>
-                      <option value="crayon drawing">크레용 그림</option>
-                      <option value="claymation">클레이 애니메이션</option>
-                  </select>
-              </div>
-            </div>
-            <button type="submit" id="generate-btn" class="generate-btn">
-              <span class="btn-text">동화책 만들기!</span>
-              <span class="btn-loader" style="display: none;"></span>
-            </button>
-          </form>
-        </div>
-        
-        <div id="storybook-container" class="storybook-container" style="display: none;">
-          <!-- Pages will be dynamically inserted here -->
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <script type="module" src="index.tsx"></script>
-</body>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

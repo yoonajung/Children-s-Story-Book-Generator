@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from "react";
 import "./index.css";
-import { GoogleGenerativeAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 type Lang = "ko" | "en";
 

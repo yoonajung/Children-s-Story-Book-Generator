@@ -7,12 +7,10 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '')
   return {
     plugins: [react()],
-    // 깃허브 리포 이름과 정확히 일치해야 합니다.
-    base: '/Children-s-Story-Book-Generator/',
     define: {
-      // 노출주의: 클라이언트 번들로 들어갑니다(민감키는 백엔드로)
-      'process.env.API_KEY': JSON.stringify(env.VITE_API_KEY || env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.VITE_API_KEY || env.GEMINI_API_KEY),
+      // 클라이언트로 노출됨 → 민감 키는 사용 ❌ (백엔드 함수로 요청)
+      'process.env.API_KEY': JSON.stringify(env.VITE_API_KEY || ''),
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.VITE_API_KEY || ''),
     },
     resolve: {
       alias: {

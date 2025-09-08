@@ -1,3 +1,4 @@
+Netlify + React 데모 버전에 적합한 vite.config.ts (최종안)
 // vite.config.ts
 import path from 'path'
 import { defineConfig, loadEnv } from 'vite'
